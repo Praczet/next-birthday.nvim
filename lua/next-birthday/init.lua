@@ -189,7 +189,7 @@ function M.birthdays(spacer)
 	results = sortPeople(results)
 	results = shiftPeople(results)
 	results = transformPeople(results, M._Config.lines, spacer)
-	display_people(results)
+	return results
 end
 
 function M.displayBirthdays()
