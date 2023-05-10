@@ -203,6 +203,7 @@ function M.displayBirthdays()
 	display_people(results, "normal")
 end
 
+-- this is a strange
 function M.setup(opts)
 	if opts ~= nil then
 		M._Config.bd_file = opts.bd_file or M._Config.bd_file
