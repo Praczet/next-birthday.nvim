@@ -9,6 +9,8 @@ M._Config = {
 	pattern = "",
 	-- date format
 	dateFormat = "mm-dd",
+	-- max_cols = 30
+	max_cols = 30,
 }
 
 local function loadFile()
@@ -62,8 +64,7 @@ local function shiftPeople(people)
 			table.insert(after, t)
 		end
 	end
-	---@diagnostic disable-next-line: unused-local
-	for i, v in ipairs(before) do
+	for _, v in ipairs(before) do
 		table.insert(after, v)
 	end
 	return after
@@ -80,27 +81,42 @@ function M.SortByDate(a, b)
 	return aPart < bPart
 end
 
+local function cliptext(text, width)
+	if not text then
+		return ""
+	end
+	if #text > width then
+		return text:sub(1, width - 3) .. "..."
+	else
+		return text
+	end
+end
+
 local function transformPeople(people, lines, spacer)
 	lines = lines or -1
 	local transformers = {}
+	local col3width = 5
+	local col2width = math.floor((M._Config.max_cols - col3width) / 2)
+	local col1width = M._Config.max_cols - col3width - col2width
 	for i, v in ipairs(people) do
 		if i <= lines or lines == -1 then
-			local line = string.sub(v[1], 1, 20)
-			local noChar = string.len(line)
-			if noChar == 20 then
-				line = line:sub(1, 17) .. "..."
+			local person = v[1]
+			local oParent = M.findParent(people, v[4])
+			local parent = ""
+			if oParent then
+				parent = "~" .. oParent[1]
 			end
-			line = string.format("%-20s%5s", line, string.sub(v[2], 6))
-			table.insert(transformers, line)
-			if v[4] ~= 0 then
-				local parent = M.findParent(people, v[4])
-				if parent ~= nil then
-					line = "~(" .. parent[1]
-					line = line:sub(1, 24) .. ")"
-					line = string.format("%25s", line)
-					table.insert(transformers, line)
-				end
-			end
+			local date = string.sub(v[2], 6)
+
+			table.insert(
+				transformers,
+				string.format(
+					"%-" .. col1width .. "s %-" .. col2width .. "s %" .. col3width .. "s",
+					cliptext(person, col1width),
+					cliptext(parent, col2width),
+					date
+				)
+			)
 			if spacer == "yes" then
 				table.insert(transformers, string.format("%25s", " "))
 			end
