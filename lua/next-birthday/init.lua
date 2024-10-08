@@ -70,6 +70,14 @@ local function shiftPeople(people)
 	return after
 end
 
+local function utf8len(str)
+	local len = 0
+	for _ in string.gmatch(str, "[%z\1-\127\194-\244][\128-\191]*") do
+		len = len + 1
+	end
+	return len
+end
+
 local function sortPeople(people)
 	table.sort(people, M.SortByDate)
 	return people
@@ -85,7 +93,8 @@ local function cliptext(text, width)
 	if not text then
 		return ""
 	end
-	if #text > width then
+	local len = utf8len(text)
+	if len > width then
 		return text:sub(1, width - 3) .. "..."
 	else
 		return text
@@ -158,6 +167,7 @@ local function print_r(arr, indent)
 
 	return str
 end
+
 local function display_people(people, method)
 	method = method or "printr"
 
