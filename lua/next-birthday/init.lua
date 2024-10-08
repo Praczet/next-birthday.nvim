@@ -78,6 +78,15 @@ local function utf8len(str)
 	return len
 end
 
+local function align_left(text, max_length)
+	local text_length = utf8len(text)
+	if text_length < max_length then
+		return text .. string.rep(" ", max_length - text_length)
+	else
+		return text
+	end
+end
+
 local function sortPeople(people)
 	table.sort(people, M.SortByDate)
 	return people
@@ -116,16 +125,9 @@ local function transformPeople(people, lines, spacer)
 				parent = "~" .. oParent[1]
 			end
 			local date = string.sub(v[2], 6)
-
-			table.insert(
-				transformers,
-				string.format(
-					"%-" .. col1width .. "s %-" .. col2width .. "s %" .. col3width .. "s",
-					cliptext(person, col1width),
-					cliptext(parent, col2width),
-					date
-				)
-			)
+			local alPerson = align_left(cliptext(person, col1width), col1width)
+			local alParent = align_left(cliptext(parent, col2width), col2width)
+			table.insert(transformers, string.format("%s %s %" .. col3width .. "s", alPerson, alParent, date))
 			if spacer == "yes" then
 				table.insert(transformers, string.format("%25s", " "))
 			end
